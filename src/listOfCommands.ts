@@ -8,7 +8,7 @@ export const commands: string[] = [
   'echo \'{ "name": ".PACKAGE_NAME.", "version": "1.0.0", "main": "dist/index.js", "type": "module", "scripts": { "format": "prettier -w \\"src/**/*.ts\\"", "lint": "eslint --fix src/**/*.ts", "compile": "tsc -p tsconfig.json", "build": "yarn format && yarn lint && yarn compile", "start": "node dist/index.js", "dev": "nodemon src/index.ts", "open": "yarn build && npm start" }, "author": ".AUTHOR.", "license": "MIT" }\' > ./.NAME./package.json',
   'echo \'{ "execMap": { "ts": "ts-node-esm" } }\' > ./.NAME./nodemon.json',
   "echo 'module.exports = { singleQuote: true, tabWidth: 2, trailingComma: \"all\", semi: false, } ' > ./.NAME./prettierrc.js",
-  // 'echo \'module.exports = { "env": { "es2021": true, "node": true }, "extends": [ "eslint:recommended", "plugin:@typescript-eslint/recommended" ], "overrides": [ ], "parser": "@typescript-eslint/parser", "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" }, "plugins": [ "@typescript-eslint" ], "rules": { } }\' > .NAME./.eslintrc.cjs',
+  'echo \'module.exports = { "env": { "es2021": true, "node": true }, "extends": [ "eslint:recommended", "plugin:@typescript-eslint/recommended" ], "overrides": [ ], "parser": "@typescript-eslint/parser", "parserOptions": { "ecmaVersion": "latest", "sourceType": "module" }, "plugins": [ "@typescript-eslint" ], "rules": { } }\' > .NAME./.eslintrc.cjs',
   "echo '/node_modules\\n/dist' > ./.NAME./.gitignore",
   "echo '/node_modules\\n/dist' > ./.NAME./.dockerignore",
   'echo \'FROM node:19.2.0-alpine3.15\\nWORKDIR /app\\nCOPY package.json .\\nRUN npm install\\nCOPY . .\\nCMD ["npm", "run", "open"]\' > ./.NAME./Dockerfile',

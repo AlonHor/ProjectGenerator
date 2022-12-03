@@ -67,6 +67,7 @@ async function main() {
   }
 
   if (name === ".") self = true;
+  else packageName = name;
 
   const author: string = (
     (await new Promise((resolve) => {
@@ -141,28 +142,36 @@ async function main() {
     `${fgYellow}Installing dependencies using ${fgGreen}yarn${fgYellow}...${reset}\n`
   );
 
+  const __dirname = path.dirname(new URL(import.meta.url).pathname);
+  if (!self) await run(`mkdir ${packageName}`);
+  await run(
+    `cp -r ${__dirname}/../template/* ${
+      self ? `../${packageName}` : packageName
+    }`
+  );
+
   for (const cmd of commands) {
     try {
       if (cmd === "git") {
         await run(`git init ${name}`);
         await run(`git -C ./${name}/ add .`);
-        await run(`git -C ./${name}/ commit -m "Initial commit"`);
+        await run(`git -C ./${name}/ commit -m "first commit"`);
       } else {
-        // if (cmd.includes("yarn --cwd") && self)
-        //   await run(cmd.replace("--cwd .NAME. ", ""));
-        // else if (cmd.includes('"name": ".NAME."'))
-        //   await run(
-        //     cmd
-        //       .replace(/\.NAME\./g, path.basename(path.resolve(process.cwd())))
-        //       .replace(/\.AUTHOR\./g, author)
-        //   );
-        // else
-        await run(
-          cmd
-            .replace(/\.NAME\./g, name)
-            .replace(/\.AUTHOR\./g, author)
-            .replace(/\.PACKAGE_NAME\./g, packageName)
-        );
+        if (cmd.includes("yarn --cwd") && self)
+          await run(cmd.replace("--cwd .NAME. ", ""));
+        else if (cmd.includes('"name": ".NAME."'))
+          await run(
+            cmd
+              .replace(/\.NAME\./g, path.basename(path.resolve(process.cwd())))
+              .replace(/\.AUTHOR\./g, author)
+          );
+        else
+          await run(
+            cmd
+              .replace(/\.NAME\./g, name)
+              .replace(/\.AUTHOR\./g, author)
+              .replace(/\.PACKAGE_NAME\./g, packageName)
+          );
       }
     } catch (e) {
       console.log(fgRed + e + reset);

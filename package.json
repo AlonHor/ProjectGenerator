@@ -5,18 +5,18 @@
   "type": "module",
   "scripts": {
     "format": "prettier -w \"src/**/*.ts\"",
-    "format-all": "prettier -w .",
+    "format:all": "prettier -w .",
     "lint": "eslint .",
     "lint:fix": "eslint --fix .",
     "compile": "tsc -p tsconfig.json",
+    "compile:watch": "tsc -w -p tsconfig.json",
     "build": "yarn format && yarn lint && yarn compile",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "open": "yarn build && npm start",
     "prepare": "husky install",
-    "husky-setup": "husky install && husky set .husky/pre-commit \"yarn format-all && yarn build\" && husky set .husky/post-merge \"yarn && yarn format-all && yarn build\" && git add .husky/pre-commit && git add .husky/post-merge && git commit -m \"chore: setup husky hooks\"",
-    "post-merge": "yarn && yarn format-all && yarn build",
-    "pre-commit": "yarn format-all && yarn build"
+    "post-merge": "yarn && yarn format:all && yarn build",
+    "pre-commit": "yarn format:all && yarn build"
   },
   "author": "Alon",
   "license": "MIT",

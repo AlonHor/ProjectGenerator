@@ -189,7 +189,7 @@ async function main() {
   console.log(
     `${fgGreen}Setup complete!\nNext step:${reset} \n\n- ${fgBlue}cd ${
       name + reset
-    } = ${fgYellow}change directory${reset}\n- ${fgBlue}yarn husky-setup${reset} = ${fgYellow}setup husky for pre-commit${reset}\n\n${fgGreen}Available Scripts:${reset}\n\n- ${fgBlue}yarn dev${reset} = ${fgYellow}open up a dev server${reset}\n- ${fgBlue}yarn open${reset} = ${fgYellow}build & start${reset}\n- ${fgBlue}yarn build${reset} = ${fgYellow}builds the source files${reset}\n- ${fgBlue}yarn start${reset} = ${fgYellow}start up a server${reset}\n- ${fgBlue}yarn compile${reset} = ${fgYellow}compile TypeScript${reset}\n- ${fgBlue}yarn lint${reset} = ${fgYellow}check for warnings${reset}\n- ${fgBlue}yarn format${reset} = ${fgYellow}prettifies the source files${reset}\n`
+    } = ${fgYellow}change directory${reset}\n\n${fgGreen}Available Scripts:${reset}\n\n- ${fgBlue}yarn dev${reset} = ${fgYellow}open up a dev server${reset}\n- ${fgBlue}yarn open${reset} = ${fgYellow}build & start${reset}\n- ${fgBlue}yarn build${reset} = ${fgYellow}builds the source files${reset}\n- ${fgBlue}yarn start${reset} = ${fgYellow}start up a server${reset}\n- ${fgBlue}yarn compile${reset} = ${fgYellow}compile TypeScript${reset}\n- ${fgBlue}yarn lint${reset} = ${fgYellow}check for warnings${reset}\n- ${fgBlue}yarn format${reset} = ${fgYellow}prettifies the source files${reset}\n`
   );
 
   readline.close();

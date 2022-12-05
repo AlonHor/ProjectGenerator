@@ -148,11 +148,33 @@ async function main() {
     `cp -r ${__dirname}/../template/* ${
       self ? `../${packageName}` : packageName
     }`
-  );
+  )
 
   for (const cmd of commands) {
     try {
-      if (cmd === "pkg") {
+      if (cmd !== "pkg") {
+        if (cmd === "git init") await run(`git init ${name}`);
+        else if (cmd === "git finish") {
+          await run(`git -C ./${name}/ add .`);
+          await run(`git -C ./${name}/ commit -m "first commit"`);
+        } else {
+          if (cmd.includes("yarn --cwd") && self)
+            await run(cmd.replace("--cwd .NAME. ", ""));
+          else if (cmd.includes('"name": ".NAME."'))
+            await run(
+              cmd
+                .replace(
+                  /\.NAME\./g,
+                  path.basename(path.resolve(process.cwd()))
+                )
+                .replace(/\.AUTHOR\./g, author)
+            );
+          else
+            await run(
+              cmd.replace(/\.NAME\./g, name).replace(/\.AUTHOR\./g, author)
+            );
+        }
+      } else {
         await run(
           `npm ${
             self ? "" : `--prefix ${name}`
@@ -162,23 +184,6 @@ async function main() {
             self ? "" : `--prefix ${name}`
           } pkg set author="${author}"`
         );
-      } else if (cmd === "git init") await run(`git init ${name}`);
-      else if (cmd === "git finish") {
-        await run(`git -C ./${name}/ add .`);
-        await run(`git -C ./${name}/ commit -m "first commit"`);
-      } else {
-        if (cmd.includes("yarn --cwd") && self)
-          await run(cmd.replace("--cwd .NAME. ", ""));
-        else if (cmd.includes('"name": ".NAME."'))
-          await run(
-            cmd
-              .replace(/\.NAME\./g, path.basename(path.resolve(process.cwd())))
-              .replace(/\.AUTHOR\./g, author)
-          );
-        else
-          await run(
-            cmd.replace(/\.NAME\./g, name).replace(/\.AUTHOR\./g, author)
-          );
       }
     } catch (e) {
       console.log(fgRed + e + reset);

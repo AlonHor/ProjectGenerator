@@ -152,8 +152,18 @@ async function main() {
 
   for (const cmd of commands) {
     try {
-      if (cmd === "git") {
-        await run(`git init ${name}`);
+      if (cmd === "pkg") {
+        await run(
+          `npm ${
+            self ? "" : `--prefix ${name}`
+          } pkg set name="${packageName}" && npm ${
+            self ? "" : `--prefix ${name}`
+          } pkg set version="1.0.0" && npm ${
+            self ? "" : `--prefix ${name}`
+          } pkg set author="${author}"`
+        );
+      } else if (cmd === "git init") await run(`git init ${name}`);
+      else if (cmd === "git finish") {
         await run(`git -C ./${name}/ add .`);
         await run(`git -C ./${name}/ commit -m "first commit"`);
       } else {
@@ -167,10 +177,8 @@ async function main() {
           );
         else
           await run(
-            cmd
-              .replace(/\.NAME\./g, name)
-              .replace(/\.AUTHOR\./g, author)
-              .replace(/\.PACKAGE_NAME\./g, packageName)
+            cmd.replace(/\.NAME\./g, name).replace(/\.AUTHOR\./g, author)
+            // .replace(/\.PACKAGE_NAME\./g, packageName)
           );
       }
     } catch (e) {
@@ -182,7 +190,7 @@ async function main() {
   console.log(
     `${fgGreen}Setup complete!\nNext step:${reset} \n\n- ${fgBlue}cd ${
       name + reset
-    } = ${fgYellow}change directory${reset}\n\n${fgGreen}Available Scripts:${reset}\n\n- ${fgBlue}yarn dev${reset} = ${fgYellow}open up a dev server${reset}\n- ${fgBlue}yarn open${reset} = ${fgYellow}build & start${reset}\n- ${fgBlue}yarn build${reset} = ${fgYellow}builds the source files${reset}\n- ${fgBlue}yarn start${reset} = ${fgYellow}start up a server${reset}\n- ${fgBlue}yarn compile${reset} = ${fgYellow}compile TypeScript${reset}\n- ${fgBlue}yarn lint${reset} = ${fgYellow}check for warnings${reset}\n- ${fgBlue}yarn format${reset} = ${fgYellow}prettifies the source files${reset}\n`
+    } = ${fgYellow}change directory${reset}\n- ${fgBlue}yarn pre-commit-setup${reset} = ${fgYellow}setup husky for pre-commit${reset}\n\n${fgGreen}Available Scripts:${reset}\n\n- ${fgBlue}yarn dev${reset} = ${fgYellow}open up a dev server${reset}\n- ${fgBlue}yarn open${reset} = ${fgYellow}build & start${reset}\n- ${fgBlue}yarn build${reset} = ${fgYellow}builds the source files${reset}\n- ${fgBlue}yarn start${reset} = ${fgYellow}start up a server${reset}\n- ${fgBlue}yarn compile${reset} = ${fgYellow}compile TypeScript${reset}\n- ${fgBlue}yarn lint${reset} = ${fgYellow}check for warnings${reset}\n- ${fgBlue}yarn format${reset} = ${fgYellow}prettifies the source files${reset}\n`
   );
 
   readline.close();

@@ -6,16 +6,17 @@
   "scripts": {
     "format": "prettier -w \"src/**/*.ts\"",
     "format-all": "prettier -w .",
-    "lint": "eslint --fix src/**/*.ts",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
     "compile": "tsc -p tsconfig.json",
     "build": "yarn format && yarn lint && yarn compile",
     "start": "node dist/index.js",
     "dev": "nodemon src/index.ts",
     "open": "yarn build && npm start",
     "prepare": "husky install",
-    "pre-commit-setup": "husky install && husky add .husky/pre-commit \"yarn build\" && husky add .husky/post-merge \"yarn && yarn build\" && git add .husky/pre-commit && git add .husky/post-merge && git commit -m \"chore: add pre-commit hook\"",
-    "post-merge": "yarn && yarn build",
-    "pre-commit": "yarn build"
+    "husky-setup": "husky install && husky set .husky/pre-commit \"yarn format-all && yarn build\" && husky set .husky/post-merge \"yarn && yarn format-all && yarn build\" && git add .husky/pre-commit && git add .husky/post-merge && git commit -m \"chore: setup husky hooks\"",
+    "post-merge": "yarn && yarn format-all && yarn build",
+    "pre-commit": "yarn format-all && yarn build"
   },
   "author": "--",
   "license": "MIT"

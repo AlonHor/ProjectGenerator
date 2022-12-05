@@ -2,3 +2,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 yarn && yarn build
+yarn && yarn format-all && yarn build
+yarn && yarn format-all && yarn build

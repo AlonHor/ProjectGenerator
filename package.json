@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "format": "prettier -w \"src/**/*.ts\"",
+    "format-all": "prettier -w .",
     "lint": "eslint --fix src/**/*.ts",
     "compile": "tsc -p tsconfig.json",
     "build": "yarn format && yarn lint && yarn compile",

@@ -148,7 +148,7 @@ async function main() {
     `cp -r ${__dirname}/../template/* ${
       self ? `../${packageName}` : packageName
     }`
-  )
+  );
 
   for (const cmd of commands) {
     try {

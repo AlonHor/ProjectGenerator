@@ -8,6 +8,7 @@ import { commands } from "./listOfCommands.js";
  * Execute simple shell command (async wrapper).
  * @param {String} cmd
  * @return {Promise<unknown>} { stdout: String, stderr: String }
+ * @see https://nodejs.org/api/child_process.html#child_process_child_process_exec_command_options_callback
  */
 async function run(cmd: string): Promise<unknown> {
   return new Promise((resolve, reject) => {
@@ -200,4 +201,6 @@ async function main() {
   readline.close();
 }
 
-main();
+main().then(() => {
+  console.log(`${fgGreen}Completed!${reset}`);
+});

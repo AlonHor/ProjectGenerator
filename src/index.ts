@@ -1,8 +1,18 @@
 import { exec } from "child_process";
-import { promises as fs } from "node:fs";
+import pkg from "fs-extra";
+const { copy, emptyDir, mkdir, promises: fs } = pkg;
 import path from "node:path";
 import { createInterface } from "readline";
 import { commands } from "./listOfCommands.js";
+
+const fgGreen = "\x1b[32m";
+const fgCyan = "\x1b[36m";
+const fgYellow = "\x1b[33m";
+const fgRed = "\x1b[31m";
+const fgBlue = "\x1b[34m";
+const fgMagenta = "\x1b[35m";
+
+const reset = "\x1b[0m";
 
 /**
  * Execute simple shell command (async wrapper).
@@ -22,26 +32,22 @@ async function run(cmd: string): Promise<unknown> {
   });
 }
 
+function abort(msg: string): never {
+  console.log(`${fgRed}${msg}${reset}`);
+  process.exit(1);
+}
+
 const readline = createInterface({
   input: process.stdin,
   output: process.stdout,
 });
-
-const fgGreen = "\x1b[32m";
-const fgCyan = "\x1b[36m";
-const fgYellow = "\x1b[33m";
-const fgRed = "\x1b[31m";
-const fgBlue = "\x1b[34m";
-const fgMagenta = "\x1b[35m";
-
-const reset = "\x1b[0m";
 
 let self = false;
 let name = "";
 
 let packageName = path.basename(path.resolve(process.cwd()));
 
-if (process.argv[2]) name = process.argv[2][0];
+if (process.argv[2]) name = process.argv[2];
 else {
   const pName: string = await new Promise((resolve) => {
     readline.question(`${fgCyan}Project Name: ${fgGreen}`, resolve);
@@ -49,20 +55,11 @@ else {
   name = pName.trim();
 }
 
-if (!name) {
-  console.log(`${fgRed}No name provided, exiting...${reset}`);
-  process.exit(0);
-}
+if (!name) abort("No name provided, exiting...");
 
-if (name.length === 0) {
-  console.log(`${fgRed}No name provided, exiting...${reset}`);
-  process.exit(0);
-}
+if (name.length === 0) abort("No name provided, exiting...");
 
-if (name.includes(" ")) {
-  console.log(`${fgRed}No spaces allowed, exiting...${reset}`);
-  process.exit(0);
-}
+if (name.includes(" ")) abort("No spaces allowed, exiting...");
 
 if (name === ".") self = true;
 else packageName = name;
@@ -72,20 +69,11 @@ const pAuthor: string = await new Promise((resolve) => {
 });
 const author: string = pAuthor.trim();
 
-if (!author) {
-  console.log(`${fgRed}No name provided, exiting...${reset}`);
-  process.exit(0);
-}
+if (!author) abort("No author provided, exiting...");
 
-if (author.length === 0) {
-  console.log(`${fgRed}No name provided, exiting...${reset}`);
-  process.exit(0);
-}
+if (author.length === 0) abort("No author provided, exiting...");
 
-if (author.includes(" ")) {
-  console.log(`${fgRed}No spaces allowed, exiting...${reset}`);
-  process.exit(0);
-}
+if (author.includes(" ")) abort("No spaces allowed, exiting...");
 
 console.log(`\n${fgMagenta}Creating project...${reset}`);
 
@@ -100,18 +88,14 @@ if (self) {
   if (entry) {
     const pAnswer: string = await new Promise((resolve) => {
       readline.question(
-        `${fgRed}The current directory is not empty, do you want to continue? ${fgCyan}(y/N)${fgRed}: ${fgGreen}`,
+        `${fgRed}The current directory is not empty, do you want to continue? This will remove everything from it! ${fgCyan}(y/N)${fgRed}: ${fgGreen}`,
         resolve
       );
     });
     const answer: string = pAnswer.trim();
-    if (answer.toLowerCase() !== "y") {
-      console.log(`${fgRed}Exiting...${reset}`);
-      process.exit(0);
-    } else {
-      await run("rm -rf *");
-      await run("rm -rf .git");
-      await run("rm -rf .gitignore");
+    if (answer.toLowerCase() !== "y") abort("Exiting...");
+    else {
+      await emptyDir(path.resolve(process.cwd()));
     }
   }
 } else
@@ -124,23 +108,22 @@ if (self) {
       );
     });
     const isDelete: string = pIsDelete.trim();
-    if (isDelete.toLowerCase() === "y") await run(`rm -rf ${name}`);
-    else {
-      console.log(`${fgRed}Exiting...${reset}`);
-      process.exit(0);
-    }
+    if (isDelete.toLowerCase() === "y") await emptyDir(name);
+    else abort("Exiting...");
   } catch (e) {
     console.log(`${fgGreen}Project does not exist, continuing...${reset}`);
   }
 
-console.log(
-  `${fgYellow}Installing dependencies using ${fgGreen}yarn${fgYellow}...${reset}\n`
-);
-
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
-if (!self) await run(`mkdir ${packageName}`);
-await run(
-  `cp -r ${__dirname}/../template/* ${self ? "../" + packageName : packageName}`
+try {
+  if (!self) await mkdir(packageName);
+} catch (e) {
+  console.log(`${fgGreen}Directory already exists, continuing...${reset}`);
+}
+
+await copy(
+  `${__dirname}/../template/`,
+  `${self ? "../" + packageName : packageName}`
 );
 
 for (const cmd of commands) {
@@ -151,6 +134,10 @@ for (const cmd of commands) {
         await run(`git -C ./${name}/ add .`);
         await run(`git -C ./${name}/ commit -m "first commit"`);
       } else {
+        if (cmd.includes("yarn"))
+          console.log(
+            `${fgYellow}Installing dependencies using ${fgGreen}yarn${fgYellow}...${reset}\n`
+          );
         if (cmd.includes("yarn --cwd") && self)
           await run(cmd.replace("--cwd .NAME. ", ""));
         else if (cmd.includes('"name": ".NAME."'))
@@ -176,8 +163,7 @@ for (const cmd of commands) {
       );
     }
   } catch (e) {
-    console.log(fgRed + e + reset);
-    process.exit(1);
+    abort(`Error while running ${cmd}: ${e}`);
   }
 }
 

@@ -5,19 +5,19 @@
 ### Usage
 
 ```bash
-$ git clone https://github.com/AlonHor/ProjectGenerator.git
-$ cd ProjectGenerator
-$ npm install
-$ npm run build
-$ cd ..
-$ node ProjectGenerator/dist/index.js
-$ rm -rf ProjectGenerator
+git clone https://github.com/AlonHor/ProjectGenerator.git
+cd ProjectGenerator
+npm install
+npm run build
+cd ..
+node ProjectGenerator/dist/index.js
+rm -rf ProjectGenerator
 ```
 
 Or in one line:
 
 ```bash
-$ git clone https://github.com/AlonHor/ProjectGenerator.git && cd ProjectGenerator && npm install && npm run build && cd .. && node ProjectGenerator/dist/index.js && rm -rf ProjectGenerator
+git clone https://github.com/AlonHor/ProjectGenerator.git && cd ProjectGenerator && npm install && npm run build && cd .. && node ProjectGenerator/dist/index.js && rm -rf ProjectGenerator
 ```
 
 ### Features

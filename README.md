@@ -8,7 +8,6 @@
 git clone https://github.com/AlonHor/ProjectGenerator.git
 cd ProjectGenerator
 rm -rf .eslintrc.json
-rm -rf .git
 npm install
 npm run build
 cd ..
@@ -19,7 +18,7 @@ rm -rf ProjectGenerator
 Or in one line:
 
 ```bash
-git clone https://github.com/AlonHor/ProjectGenerator.git && cd ProjectGenerator && rm -rf .eslintrc.json && rm -rf .git && npm install && npm run build && cd .. && node ProjectGenerator/dist/index.js && rm -rf ProjectGenerator
+git clone https://github.com/AlonHor/ProjectGenerator.git && cd ProjectGenerator && rm -rf .eslintrc.json && npm install && npm run build && cd .. && node ProjectGenerator/dist/index.js && rm -rf ProjectGenerator
 ```
 
 ### Features

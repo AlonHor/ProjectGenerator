@@ -32,6 +32,11 @@ async function run(cmd: string): Promise<unknown> {
   });
 }
 
+/**
+ * Abort execution and print error message.
+ * @param {String} msg
+ * @see https://nodejs.org/api/process.html#process_process_exit_code
+ */
 function abort(msg: string): never {
   console.log(`${fgRed}${msg}${reset}`);
   process.exit(1);

@@ -12,6 +12,8 @@ const fgRed = "\x1b[31m";
 const fgBlue = "\x1b[34m";
 const fgMagenta = "\x1b[35m";
 
+const PACKAGE_MANAGERS = ["npm", "yarn"];
+
 const reset = "\x1b[0m";
 
 /**
@@ -39,7 +41,7 @@ async function run(cmd: string): Promise<unknown> {
  */
 function abort(msg: string): never {
   console.log(`${fgRed}${msg}${reset}`);
-  process.exit(1);
+  process.exit(0);
 }
 
 const readline = createInterface({
@@ -79,6 +81,18 @@ if (!author) abort("No author provided, exiting...");
 if (author.length === 0) abort("No author provided, exiting...");
 
 if (author.includes(" ")) abort("No spaces allowed, exiting...");
+
+const pPackageManager: string = await new Promise((resolve) => {
+  readline.question(`${fgCyan}Package Manager (yarn/npm): ${fgGreen}`, resolve);
+});
+let packageManager: string = pPackageManager.trim().toLowerCase();
+
+if (!packageManager) packageManager = "yarn";
+
+if (packageManager.length === 0) packageManager = "yarn";
+
+if (!PACKAGE_MANAGERS.includes(packageManager))
+  abort("Invalid package manager, exiting...");
 
 console.log(`\n${fgMagenta}Creating project...${reset}`);
 
@@ -131,7 +145,7 @@ await copy(
   `${self ? "../" + packageName : packageName}`
 );
 
-for (const cmd of commands) {
+for (let cmd of commands) {
   try {
     if (cmd !== "pkg") {
       if (cmd === "git init") await run(`git init ${name}`);
@@ -139,13 +153,19 @@ for (const cmd of commands) {
         await run(`git -C ./${name}/ add .`);
         await run(`git -C ./${name}/ commit -m "first commit"`);
       } else {
-        if (cmd.includes("yarn"))
+        if (cmd.includes("yarn")) {
           console.log(
-            `${fgYellow}Installing dependencies using ${fgGreen}yarn${fgYellow}...${reset}\n`
+            `${fgYellow}Installing dependencies using ${
+              fgGreen + packageManager + fgYellow
+            }...${reset}\n`
           );
-        if (cmd.includes("yarn --cwd") && self)
-          await run(cmd.replace("--cwd .NAME. ", ""));
-        else if (cmd.includes('"name": ".NAME."'))
+          if (self) cmd = cmd.replace("--cwd .NAME. ", "");
+          if (packageManager === "npm")
+            cmd = cmd
+              .replace("yarn --cwd", "npm --prefix")
+              .replace("add -D", "i --save-dev");
+          await run(cmd.replace(/\.NAME\./g, name));
+        } else if (cmd.includes('"name": ".NAME."'))
           await run(
             cmd
               .replace(/\.NAME\./g, path.basename(path.resolve(process.cwd())))

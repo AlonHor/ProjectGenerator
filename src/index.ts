@@ -1,5 +1,5 @@
 import { exec } from "child_process";
-import { promises } from "node:fs";
+import { promises as fs } from "node:fs";
 import path from "node:path";
 import { createInterface } from "readline";
 import { commands } from "./listOfCommands.js";
@@ -94,7 +94,7 @@ if (self) {
     `${fgYellow}Warning: You are creating a project in the current directory.${reset}`
   );
 
-  const directory = await promises.opendir(path.resolve(process.cwd()));
+  const directory = await fs.opendir(path.resolve(process.cwd()));
   const entry = await directory.read();
   await directory.close();
   if (entry) {

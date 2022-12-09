@@ -48,7 +48,7 @@ const readline = createInterface({
 });
 
 let self = false;
-let name = "";
+let name: string;
 
 let packageName = path.basename(path.resolve(process.cwd()));
 

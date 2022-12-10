@@ -145,7 +145,8 @@ await copy(
   `${self ? "../" + packageName : packageName}`
 );
 
-for (let cmd of commands) {
+for (const loopedCommand of commands) {
+  let cmd = loopedCommand;
   try {
     if (cmd !== "pkg") {
       if (cmd === "git init") await run(`git init ${name}`);

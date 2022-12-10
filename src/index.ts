@@ -9,6 +9,7 @@ import { commands } from "./listOfCommands.js";
 const fgGreen = "\x1b[32m";
 const fgCyan = "\x1b[36m";
 const fgYellow = "\x1b[33m";
+const fgOrange = "\x1b[38;5;208m";
 const fgRed = "\x1b[31m";
 const fgBlue = "\x1b[34m";
 const fgMagenta = "\x1b[35m";
@@ -45,10 +46,50 @@ function abort(msg: string): never {
   process.exit(0);
 }
 
-const readline = createInterface({
-  input: process.stdin,
-  output: process.stdout,
-});
+/**
+ * Ask user for input.
+ * @param {String} question
+ * @param {String[]} options
+ * @param {String} defaultOption
+ * @param {String} color
+ * @return {Promise<String>}
+ * @see https://nodejs.org/api/readline.html#readline_example_readline_question_async
+ */
+function ask(
+  question: string,
+  options: string[],
+  defaultOption: string,
+  color: string
+): Promise<string> {
+  const rl = createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  question = `${color}${question}`;
+
+  if (options.length > 0) {
+    const optionsString = options.join(" | ");
+    if (defaultOption)
+      question += ` ${fgYellow}(${optionsString}) [${fgOrange}${defaultOption}${fgYellow}]${color}: `;
+    else question += ` ${fgYellow}(${optionsString})${color}: `;
+  } else question += ": ";
+
+  question += fgGreen;
+
+  return new Promise((resolve) => {
+    rl.question(question, (answer) => {
+      rl.close();
+      let result = answer.trim();
+      if (result === "") {
+        if (defaultOption) result = defaultOption;
+        else abort("No input provided.");
+      } else if (options.length > 0 && !options.includes(result))
+        abort(`Invalid option: ${answer}`);
+      resolve(result);
+    });
+  });
+}
 
 let self = false;
 let name: string;
@@ -56,44 +97,20 @@ let name: string;
 let packageName = path.basename(path.resolve(process.cwd()));
 
 if (process.argv[2]) name = process.argv[2];
-else {
-  const pName: string = await new Promise((resolve) => {
-    readline.question(`${fgCyan}Project Name: ${fgGreen}`, resolve);
-  });
-  name = pName.trim();
-}
-
-if (!name) abort("No name provided, exiting...");
-
-if (name.length === 0) abort("No name provided, exiting...");
+else name = await ask("Project name", [], packageName, fgCyan);
 
 if (name.includes(" ")) abort("No spaces allowed, exiting...");
 
 if (name === ".") self = true;
 else packageName = name;
 
-const pAuthor: string = await new Promise((resolve) => {
-  readline.question(`${fgCyan}Author: ${fgGreen}`, resolve);
-});
-const author: string = pAuthor.trim();
-
-if (!author) abort("No author provided, exiting...");
-
-if (author.length === 0) abort("No author provided, exiting...");
+const author = await ask(`Author`, [], "", fgCyan);
 
 if (author.includes(" ")) abort("No spaces allowed, exiting...");
 
-const pPackageManager: string = await new Promise((resolve) => {
-  readline.question(`${fgCyan}Package Manager (yarn/npm): ${fgGreen}`, resolve);
-});
-let packageManager: string = pPackageManager.trim().toLowerCase();
-
-if (!packageManager) packageManager = "yarn";
-
-if (packageManager.length === 0) packageManager = "yarn";
-
-if (!PACKAGE_MANAGERS.includes(packageManager))
-  abort("Invalid package manager, exiting...");
+const packageManager = (
+  await ask("Package Manager", PACKAGE_MANAGERS, "yarn", fgCyan)
+).toLowerCase();
 
 console.log(`\n${fgMagenta}Creating project...${reset}`);
 
@@ -106,14 +123,13 @@ if (self) {
   const entry = await directory.read();
   await directory.close();
   if (entry) {
-    const pAnswer: string = await new Promise((resolve) => {
-      readline.question(
-        `${fgRed}The current directory is not empty, do you want to continue? This will remove everything from it! ${fgCyan}(y/N)${fgRed}: ${fgGreen}`,
-        resolve
-      );
-    });
-    const answer: string = pAnswer.trim();
-    if (answer.toLowerCase() !== "y") abort("Exiting...");
+    const confirmDelete: string = await ask(
+      "The current directory is not empty, do you want to continue? This will remove everything from it!",
+      ["y", "n"],
+      "n",
+      fgRed
+    );
+    if (confirmDelete.toLowerCase() !== "y") abort("Exiting...");
     else {
       await emptyDir(path.resolve(process.cwd()));
     }
@@ -121,13 +137,12 @@ if (self) {
 } else
   try {
     await run(`cd ${name}`);
-    const pIsDelete: string = await new Promise((resolve) => {
-      readline.question(
-        `${fgRed}Project already exists. Would you like to overwrite it? This will delete everything in it. ${fgCyan}(y/N)${fgRed}: ${fgGreen}`,
-        resolve
-      );
-    });
-    const isDelete: string = pIsDelete.trim();
+    const isDelete: string = await ask(
+      "Project already exists. Would you like to overwrite it? This will remove everything from it!",
+      ["y", "n"],
+      "n",
+      fgRed
+    );
     if (isDelete.toLowerCase() === "y") await emptyDir(name);
     else abort("Exiting...");
   } catch (e) {
@@ -194,11 +209,34 @@ for (const loopedCommand of commands) {
   }
 }
 
+const AVAILABLE_SCRIPTS = {
+  dev: "open up a development server",
+  open: "shortcut for yarn build && yarn start",
+  build: "build the project",
+  start: "start the project",
+  compile: "compile the typescript files into javascript",
+  "compile:watch":
+    "compile the typescript files into javascript on file change",
+  lint: "find linting errors in the code",
+  "lint:fix": "fix linting errors in the code",
+  format: "reformat the code using prettier",
+  "format:all": "reformat all files that prettier supports",
+  prepare: "prepare husky hooks",
+  "post-merge": "install dependencies, format all files and build the project",
+  "pre-commit": "format all files and build the project",
+};
+
 console.log(
   `${fgGreen}Setup complete!\nNext step:${reset} \n\n- ${fgBlue}cd ${
     name + reset
-  } = ${fgYellow}change directory${reset}\n\n${fgGreen}Available Scripts:${reset}\n\n- ${fgBlue}yarn dev${reset} = ${fgYellow}open up a dev server${reset}\n- ${fgBlue}yarn open${reset} = ${fgYellow}build & start${reset}\n- ${fgBlue}yarn build${reset} = ${fgYellow}builds the source files${reset}\n- ${fgBlue}yarn start${reset} = ${fgYellow}start up a server${reset}\n- ${fgBlue}yarn compile${reset} = ${fgYellow}compile TypeScript${reset}\n- ${fgBlue}yarn lint${reset} = ${fgYellow}check for warnings${reset}\n- ${fgBlue}yarn format${reset} = ${fgYellow}prettifies the source files${reset}\n`
+  } = ${fgYellow}change directory${reset}\n\n${fgGreen}Available Scripts:${reset}\n\n${Object.entries(
+    AVAILABLE_SCRIPTS
+  )
+    .map(
+      ([key, value]) =>
+        `${reset}- ${fgBlue}${key}${reset} = ${fgYellow}${value}`
+    )
+    .join("\n")}\n`
 );
 
-readline.close();
 process.exit(0);

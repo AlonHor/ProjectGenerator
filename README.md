@@ -3,7 +3,7 @@
 ### Installation
 
 ```bash
-wget https://github.com/AlonHor/ProjectGenerator/releases/download/v1.0.0/createts-setup # Download the setup file
+wget -q https://github.com/AlonHor/ProjectGenerator/releases/download/v1.0.0/createts-setup # Download the setup file
 chmod +x createts-setup # Make the file executable
 ./createts-setup # Run the setup script and follow the instructions
 rm createts-setup # Remove the setup script after installation
@@ -12,7 +12,7 @@ rm createts-setup # Remove the setup script after installation
 Or in one line:
 
 ```bash
-wget https://github.com/AlonHor/ProjectGenerator/releases/download/v1.0.0/createts-setup && chmod +x createts-setup && ./createts-setup && rm createts-setup
+wget -q https://github.com/AlonHor/ProjectGenerator/releases/download/v1.0.0/createts-setup && chmod +x createts-setup && ./createts-setup && rm createts-setup
 ```
 
 That's it! Follow the instructions, and you're good to go!<br />

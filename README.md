@@ -1,8 +1,17 @@
 # ProjectGenerator
 
-## A simple tool to generate all the boilerplate code for a new TypeScript project
+### Installation
 
-### Usage
+```bash
+wget https://github.com/AlonHor/ProjectGenerator/releases/download/v1.0.0/createts-setup
+chmod +x createts-setup
+./createts-setup
+```
+
+That's it! Follow the instructions, and you're good to go!<br />
+After the installation, you can run the tool by typing `createts` in your terminal.
+
+### Build from source
 
 ```bash
 git clone https://github.com/AlonHor/ProjectGenerator.git

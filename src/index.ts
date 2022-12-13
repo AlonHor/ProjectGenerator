@@ -209,6 +209,10 @@ for (const loopedCommand of commands) {
   }
 }
 
+const NEXT_STEPS = {
+  "cd .NAME.": "change directory to your project",
+};
+
 const AVAILABLE_SCRIPTS = {
   dev: "open up a development server",
   open: "shortcut for yarn build && yarn start",
@@ -227,14 +231,22 @@ const AVAILABLE_SCRIPTS = {
 };
 
 console.log(
-  `${fgGreen}Setup complete!\nNext step:${reset} \n\n- ${fgBlue}cd ${
-    name + reset
-  } = ${fgYellow}change directory${reset}\n\n${fgGreen}Available Scripts:${reset}\n\n${Object.entries(
+  `${fgGreen}Setup complete!\nNext step${
+    Object.keys(NEXT_STEPS).length > 1 ? "s" : ""
+  }:${reset} \n\n${Object.entries(NEXT_STEPS)
+    .map(
+      ([key, value]) =>
+        `${reset}- ${fgBlue}${key.replace(/\.NAME\./g, name)}${reset} = ${
+          fgYellow + value + reset
+        }`
+    )
+    .join("\n")}
+  ${reset}\n${fgGreen}Available Scripts:${reset}\n\n${Object.entries(
     AVAILABLE_SCRIPTS
   )
     .map(
       ([key, value]) =>
-        `${reset}- ${fgBlue}${key}${reset} = ${fgYellow}${value}`
+        `${reset}- ${fgBlue}${key}${reset} = ${fgYellow + value + reset}`
     )
     .join("\n")}\n`
 );
